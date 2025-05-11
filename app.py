@@ -137,18 +137,19 @@ df['Valor Venda'] = df['Qtd Vendida'] * df['Preço Unitario']
 
 """#Dashboard"""
 
+"""#Dashboard"""
+
 # colunas do df
 print(df.columns.tolist())
 
-app = Dash(__name__)  # Removido o tema externo
-server = app.server
+app = Dash(__name__, external_stylesheets=[dbc.themes.CYBORG])  # Tema escuro do Bootstrap
 
 app.layout = dbc.Container([
-    html.H1("Dashboard de Vendas", className="text-center my-4", style={"color": "white"}),
+    html.H1("Dashboard de Vendas", className="text-center text-white my-4"),
 
     dbc.Row([
         dbc.Col([
-            html.H5("Filtros", className="mb-3", style={"color": "white"}),
+            html.H5("Filtros", className="text-white mb-3"),
             dcc.Dropdown(df["Produto"].unique(), id="filtro_produto",
                          placeholder="Filtrar por Produto", className="mb-2"),
             dcc.Dropdown(df["Nome da Loja"].unique(), id="filtro_loja",
@@ -177,8 +178,7 @@ app.layout = dbc.Container([
             ]),
         ], md=9)
     ])
-], fluid=True, style={"backgroundColor": "#111111", "color": "white", "fontFamily": "Roboto, sans-serif"})
-
+], fluid=True)
 
 @app.callback(
     Output("filtro_marca_dinamica", "options"),
@@ -189,16 +189,6 @@ def atualizar_dropdown_marca(tipo_produto):
         marcas = df[df["Tipo do Produto"] == tipo_produto]["Marca"].unique()
         return [{"label": m, "value": m} for m in marcas]
     return []
-
-
-def estilo_fig(fig):
-    fig.update_layout(
-        paper_bgcolor='#111111',
-        plot_bgcolor='#111111',
-        font_color='white'
-    )
-    return fig
-
 
 @app.callback(
     Output("grafico_vendas_ano", "figure"),
@@ -228,11 +218,28 @@ def atualizar_graficos(produto, loja, cliente, marca, tipo, marca_dinamica):
     if marca_dinamica:
         dff = dff[dff["Marca"] == marca_dinamica]
 
-    fig1 = estilo_fig(px.bar(dff, x="Ano", y="Valor Venda", title="Vendas por Ano"))
-    fig2 = estilo_fig(px.bar(dff, x="Cliente", y="Valor Venda", title="Vendas por Cliente"))
-    fig3 = estilo_fig(px.bar(dff, x="Produto", y="Valor Venda", title="Vendas por Produto"))
-    fig4 = estilo_fig(px.bar(dff, x="Valor Venda", y="Nome da Loja", orientation="h", title="Vendas por Loja"))
-    fig5 = estilo_fig(px.pie(dff, names="Tipo do Produto", values="Valor Venda", title="Distribuição por Tipo de Produto"))
-    fig6 = estilo_fig(px.area(dff, x="Ano", y="Valor Venda", color="Marca", title="Vendas por Marca ao Longo dos Anos"))
+    fig1 = px.bar(dff, x="Ano", y="Valor Venda", title="Vendas por Ano",
+                  template="plotly_dark", color="Ano", color_discrete_sequence=px.colors.qualitative.Vivid)
+
+    fig2 = px.bar(dff, x="Cliente", y="Valor Venda", title="Vendas por Cliente",
+                  template="plotly_dark", color="Cliente", color_discrete_sequence=px.colors.qualitative.Pastel)
+
+    fig3 = px.bar(dff, x="Produto", y="Valor Venda", title="Vendas por Produto",
+                  template="plotly_dark", color="Produto", color_discrete_sequence=px.colors.qualitative.Set2)
+
+    fig4 = px.bar(dff, x="Valor Venda", y="Nome da Loja", orientation="h",
+                  title="Vendas por Loja", template="plotly_dark", color="Nome da Loja",
+                  color_discrete_sequence=px.colors.qualitative.Set3)
+
+    fig5 = px.pie(dff, names="Tipo do Produto", values="Valor Venda",
+                  title="Distribuição por Tipo de Produto", template="plotly_dark",
+                  color_discrete_sequence=px.colors.sequential.RdBu)
+
+    fig6 = px.area(dff, x="Ano", y="Valor Venda", color="Marca",
+                   title="Vendas por Marca ao Longo dos Anos", template="plotly_dark",
+                   color_discrete_sequence=px.colors.qualitative.Bold)
 
     return fig1, fig2, fig3, fig4, fig5, fig6
+
+server = app.server
+
