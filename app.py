@@ -140,6 +140,10 @@ df['Valor Venda'] = df['Qtd Vendida'] * df['Preço Unitario']
 #colunas do df
 print(df.columns.tolist())
 
+from dash import Dash, dcc, html, Input, Output
+import dash_bootstrap_components as dbc
+import plotly.express as px
+
 app = Dash(__name__, external_stylesheets=[dbc.themes.CYBORG])
 
 # Layout
@@ -173,39 +177,18 @@ app.layout = dbc.Container([
         dbc.Col([
 
             dbc.Row([
-                dbc.Col(dbc.Card([
-                    dbc.CardHeader("Vendas por Ano", className="bg-dark text-white"),
-                    dbc.CardBody(dcc.Graph(id="grafico_vendas_ano"))
-                ], color="dark", inverse=True), md=6),
-
-                dbc.Col(dbc.Card([
-                    dbc.CardHeader("Vendas por Cliente", className="bg-dark text-white"),
-                    dbc.CardBody(dcc.Graph(id="grafico_vendas_cliente"))
-                ], color="dark", inverse=True), md=6),
+                dbc.Col(dcc.Graph(id="grafico_vendas_ano"), md=6),
+                dbc.Col(dcc.Graph(id="grafico_vendas_cliente"), md=6),
             ]),
 
             dbc.Row([
-                dbc.Col(dbc.Card([
-                    dbc.CardHeader("Vendas por Produto", className="bg-dark text-white"),
-                    dbc.CardBody(dcc.Graph(id="grafico_vendas_produto"))
-                ], color="dark", inverse=True), md=6),
-
-                dbc.Col(dbc.Card([
-                    dbc.CardHeader("Vendas por Loja", className="bg-dark text-white"),
-                    dbc.CardBody(dcc.Graph(id="grafico_vendas_loja"))
-                ], color="dark", inverse=True), md=6),
+                dbc.Col(dcc.Graph(id="grafico_vendas_produto"), md=6),
+                dbc.Col(dcc.Graph(id="grafico_vendas_loja"), md=6),
             ]),
 
             dbc.Row([
-                dbc.Col(dbc.Card([
-                    dbc.CardHeader("Distribuição por Tipo de Produto", className="bg-dark text-white"),
-                    dbc.CardBody(dcc.Graph(id="grafico_pizza_tipo"))
-                ], color="dark", inverse=True), md=6),
-
-                dbc.Col(dbc.Card([
-                    dbc.CardHeader("Vendas por Marca ao Longo dos Anos", className="bg-dark text-white"),
-                    dbc.CardBody(dcc.Graph(id="grafico_area_marca"))
-                ], color="dark", inverse=True), md=6),
+                dbc.Col(dcc.Graph(id="grafico_pizza_tipo"), md=6),
+                dbc.Col(dcc.Graph(id="grafico_area_marca"), md=6),
             ]),
 
         ], md=9)
@@ -252,27 +235,54 @@ def atualizar_graficos(produto, loja, cliente, marca, tipo, marca_dinamica):
     if marca_dinamica:
         dff = dff[dff["Marca"] == marca_dinamica]
 
-    # Gráficos com tema escuro e paleta suave
-    fig1 = px.bar(dff, x="Ano", y="Valor Venda", color="Ano",
-                  title="Vendas por Ano", template="plotly_dark",
-                  color_discrete_sequence=px.colors.qualitative.Dark24)
+    # Gráfico 1 - Vendas por Ano (sem color scale)
+    fig1 = px.bar(dff, x="Ano", y="Valor Venda",
+                  title="Vendas por Ano",
+                  template="plotly_dark",
+                  color_discrete_sequence=["#1f77b4"])
 
+    fig1.update_layout(
+        plot_bgcolor='#111111',
+        paper_bgcolor='#111111',
+        font=dict(color='white'),
+        title_font=dict(color='white'),
+        xaxis=dict(title='Ano', title_font=dict(color='white'), tickfont=dict(color='white')),
+        yaxis=dict(title='Valor Venda', title_font=dict(color='white'), tickfont=dict(color='white')),
+        showlegend=False
+    )
+
+    # Gráfico 2 - Vendas por Cliente
     fig2 = px.bar(dff, x="Cliente", y="Valor Venda",
-                  title="Vendas por Cliente", template="plotly_dark",
-                  color_discrete_sequence=px.colors.qualitative.Dark2)
+                  title="Vendas por Cliente",
+                  template="plotly_dark",
+                  color_discrete_sequence=["#e377c2"])
 
+    fig2.update_layout(
+        plot_bgcolor='#111111',
+        paper_bgcolor='#111111',
+        font=dict(color='white'),
+        title_font=dict(color='white'),
+        xaxis=dict(title='Cliente', title_font=dict(color='white'), tickfont=dict(color='white')),
+        yaxis=dict(title='Valor Venda', title_font=dict(color='white'), tickfont=dict(color='white')),
+        showlegend=False
+    )
+
+    # Gráfico 3 - Vendas por Produto
     fig3 = px.bar(dff, x="Produto", y="Valor Venda",
                   title="Vendas por Produto", template="plotly_dark",
                   color_discrete_sequence=px.colors.qualitative.Set3)
 
+    # Gráfico 4 - Vendas por Loja
     fig4 = px.bar(dff, x="Valor Venda", y="Nome da Loja", orientation="h",
                   title="Vendas por Loja", template="plotly_dark",
                   color_discrete_sequence=px.colors.qualitative.Prism)
 
+    # Gráfico 5 - Pizza Tipo de Produto
     fig5 = px.pie(dff, names="Tipo do Produto", values="Valor Venda",
                   title="Distribuição por Tipo de Produto", template="plotly_dark",
                   color_discrete_sequence=px.colors.sequential.Plasma)
 
+    # Gráfico 6 - Área Marca por Ano
     fig6 = px.area(dff, x="Ano", y="Valor Venda", color="Marca",
                    title="Vendas por Marca ao Longo dos Anos", template="plotly_dark",
                    color_discrete_sequence=px.colors.qualitative.Safe)
