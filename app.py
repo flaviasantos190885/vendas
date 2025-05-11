@@ -139,17 +139,19 @@ df['Valor Venda'] = df['Qtd Vendida'] * df['Preço Unitario']
 
 """#Dashboard"""
 
+"""#Dashboard"""
+
 # colunas do df
 print(df.columns.tolist())
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.CYBORG])  # Tema escuro do Bootstrap
+app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])  # Tema claro padrão
 
 app.layout = dbc.Container([
-    html.H1("Dashboard de Vendas", className="text-center text-white my-4"),
+    html.H1("Dashboard de Vendas", className="text-center my-4"),
 
     dbc.Row([
         dbc.Col([
-            html.H5("Filtros", className="text-white mb-3"),
+            html.H5("Filtros", className="mb-3"),
             dcc.Dropdown(df["Produto"].unique(), id="filtro_produto",
                          placeholder="Filtrar por Produto", className="mb-2"),
             dcc.Dropdown(df["Nome da Loja"].unique(), id="filtro_loja",
@@ -218,28 +220,23 @@ def atualizar_graficos(produto, loja, cliente, marca, tipo, marca_dinamica):
     if marca_dinamica:
         dff = dff[dff["Marca"] == marca_dinamica]
 
-    fig1 = px.bar(dff, x="Ano", y="Valor Venda", title="Vendas por Ano",
-                  template="plotly_dark", color="Ano", color_discrete_sequence=px.colors.qualitative.Vivid)
+    fig1 = px.bar(dff, x="Ano", y="Valor Venda", title="Vendas por Ano")
 
-    fig2 = px.bar(dff, x="Cliente", y="Valor Venda", title="Vendas por Cliente",
-                  template="plotly_dark", color="Cliente", color_discrete_sequence=px.colors.qualitative.Pastel)
+    fig2 = px.bar(dff, x="Cliente", y="Valor Venda", title="Vendas por Cliente")
 
-    fig3 = px.bar(dff, x="Produto", y="Valor Venda", title="Vendas por Produto",
-                  template="plotly_dark", color="Produto", color_discrete_sequence=px.colors.qualitative.Set2)
+    fig3 = px.bar(dff, x="Produto", y="Valor Venda", title="Vendas por Produto")
 
     fig4 = px.bar(dff, x="Valor Venda", y="Nome da Loja", orientation="h",
-                  title="Vendas por Loja", template="plotly_dark", color="Nome da Loja",
-                  color_discrete_sequence=px.colors.qualitative.Set3)
+                  title="Vendas por Loja")
 
     fig5 = px.pie(dff, names="Tipo do Produto", values="Valor Venda",
-                  title="Distribuição por Tipo de Produto", template="plotly_dark",
-                  color_discrete_sequence=px.colors.sequential.RdBu)
+                  title="Distribuição por Tipo de Produto")
 
     fig6 = px.area(dff, x="Ano", y="Valor Venda", color="Marca",
-                   title="Vendas por Marca ao Longo dos Anos", template="plotly_dark",
-                   color_discrete_sequence=px.colors.qualitative.Bold)
+                   title="Vendas por Marca ao Longo dos Anos")
 
     return fig1, fig2, fig3, fig4, fig5, fig6
 
 server = app.server
+
 
