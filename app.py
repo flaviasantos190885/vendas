@@ -140,7 +140,7 @@ df['Valor Venda'] = df['Qtd Vendida'] * df['Preço Unitario']
 # colunas do df
 print(df.columns.tolist())
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.CYBORG])
+app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
 
 app.layout = dbc.Container([
     html.H1("Dashboard de Vendas", className="text-center text-white my-4"),
