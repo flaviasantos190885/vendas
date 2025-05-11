@@ -137,9 +137,6 @@ df['Valor Venda'] = df['Qtd Vendida'] * df['Preço Unitario']
 
 """#Dashboard"""
 
-"""#Dashboard"""
-
-"""#Dashboard"""
 
 # colunas do df
 print(df.columns.tolist())
@@ -210,9 +207,11 @@ def atualizar_dropdown_marca(tipo_produto):
 def atualizar_graficos(produto, loja, cliente, marca, tipo, marca_dinamica):
     dff = df.copy()
 
+    filtros = [produto, loja, cliente, marca, tipo, marca_dinamica]
+
     for coluna, valor in zip(
         ["Produto", "Nome da Loja", "Cliente", "Marca", "Tipo do Produto"],
-        [produto, loja, cliente, marca, tipo]
+        filtros[:-1]
     ):
         if valor:
             dff = dff[dff[coluna] == valor]
@@ -220,23 +219,43 @@ def atualizar_graficos(produto, loja, cliente, marca, tipo, marca_dinamica):
     if marca_dinamica:
         dff = dff[dff["Marca"] == marca_dinamica]
 
-    fig1 = px.bar(dff, x="Ano", y="Valor Venda", title="Vendas por Ano")
+    palette = px.colors.qualitative.Bold
 
-    fig2 = px.bar(dff, x="Cliente", y="Valor Venda", title="Vendas por Cliente")
+    # Vendas por Ano
+    fig1 = px.bar(dff, x="Ano", y="Valor Venda", title="Vendas por Ano",
+                  color="Ano", color_discrete_sequence=palette)
 
-    fig3 = px.bar(dff, x="Produto", y="Valor Venda", title="Vendas por Produto")
+    # Vendas por Cliente (limitar aos 10 com maior venda se nenhum filtro aplicado)
+    dff_cliente = dff.copy()
+    if all(f is None for f in filtros):
+        dff_cliente = dff_cliente.groupby("Cliente", as_index=False)["Valor Venda"].sum()
+        dff_cliente = dff_cliente.nlargest(10, "Valor Venda")
+    fig2 = px.bar(dff_cliente, x="Cliente", y="Valor Venda", title="Vendas por Cliente",
+                  color="Cliente", color_discrete_sequence=palette)
 
-    fig4 = px.bar(dff, x="Valor Venda", y="Nome da Loja", orientation="h",
-                  title="Vendas por Loja")
+    # Vendas por Produto (limitar top 10)
+    dff_produto = dff.copy()
+    if all(f is None for f in filtros):
+        dff_produto = dff_produto.groupby("Produto", as_index=False)["Valor Venda"].sum()
+        dff_produto = dff_produto.nlargest(10, "Valor Venda")
+    fig3 = px.bar(dff_produto, x="Produto", y="Valor Venda", title="Vendas por Produto",
+                  color="Produto", color_discrete_sequence=palette)
 
+    # Vendas por Loja (limitar top 10)
+    dff_loja = dff.copy()
+    if all(f is None for f in filtros):
+        dff_loja = dff_loja.groupby("Nome da Loja", as_index=False)["Valor Venda"].sum()
+        dff_loja = dff_loja.nlargest(10, "Valor Venda")
+    fig4 = px.bar(dff_loja, x="Valor Venda", y="Nome da Loja", orientation="h",
+                  title="Vendas por Loja", color="Nome da Loja", color_discrete_sequence=palette)
+
+    # Pizza por Tipo de Produto (sempre mostra tudo)
     fig5 = px.pie(dff, names="Tipo do Produto", values="Valor Venda",
-                  title="Distribuição por Tipo de Produto")
+                  title="Distribuição por Tipo de Produto", color_discrete_sequence=palette)
 
+    # Área por Marca e Ano
     fig6 = px.area(dff, x="Ano", y="Valor Venda", color="Marca",
-                   title="Vendas por Marca ao Longo dos Anos")
+                   title="Vendas por Marca ao Longo dos Anos", color_discrete_sequence=palette)
 
     return fig1, fig2, fig3, fig4, fig5, fig6
-
-server = app.server
-
 
