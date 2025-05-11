@@ -137,18 +137,12 @@ df['Valor Venda'] = df['Qtd Vendida'] * df['Preço Unitario']
 
 """#Dashboard"""
 
-#colunas do df
+# colunas do df
 print(df.columns.tolist())
-
-from dash import Dash, dcc, html, Input, Output
-import dash_bootstrap_components as dbc
-import plotly.express as px
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.CYBORG])
 
-# Layout
 app.layout = dbc.Container([
-
     html.H1("Dashboard de Vendas", className="text-center text-white my-4"),
 
     dbc.Row([
@@ -175,7 +169,6 @@ app.layout = dbc.Container([
         ], md=3),
 
         dbc.Col([
-
             dbc.Row([
                 dbc.Col(dcc.Graph(id="grafico_vendas_ano"), md=6),
                 dbc.Col(dcc.Graph(id="grafico_vendas_cliente"), md=6),
@@ -190,12 +183,10 @@ app.layout = dbc.Container([
                 dbc.Col(dcc.Graph(id="grafico_pizza_tipo"), md=6),
                 dbc.Col(dcc.Graph(id="grafico_area_marca"), md=6),
             ]),
-
         ], md=9)
     ])
 ], fluid=True)
 
-# Dropdown dependente
 @app.callback(
     Output("filtro_marca_dinamica", "options"),
     Input("filtro_tipo_produto", "value")
@@ -206,7 +197,6 @@ def atualizar_dropdown_marca(tipo_produto):
         return [{"label": m, "value": m} for m in marcas]
     return []
 
-# Callback dos gráficos
 @app.callback(
     Output("grafico_vendas_ano", "figure"),
     Output("grafico_vendas_cliente", "figure"),
@@ -235,57 +225,35 @@ def atualizar_graficos(produto, loja, cliente, marca, tipo, marca_dinamica):
     if marca_dinamica:
         dff = dff[dff["Marca"] == marca_dinamica]
 
-    # Gráfico 1 - Vendas por Ano (sem color scale)
+    # Gráfico 1 - Vendas por Ano
     fig1 = px.bar(dff, x="Ano", y="Valor Venda",
-                  title="Vendas por Ano",
-                  template="plotly_dark",
-                  color_discrete_sequence=["#1f77b4"])
-
-    fig1.update_layout(
-        plot_bgcolor='#111111',
-        paper_bgcolor='#111111',
-        font=dict(color='white'),
-        title_font=dict(color='white'),
-        xaxis=dict(title='Ano', title_font=dict(color='white'), tickfont=dict(color='white')),
-        yaxis=dict(title='Valor Venda', title_font=dict(color='white'), tickfont=dict(color='white')),
-        showlegend=False
-    )
+                  title="Vendas por Ano", template="plotly_dark",
+                  color="Ano", color_discrete_sequence=px.colors.qualitative.Set1)
 
     # Gráfico 2 - Vendas por Cliente
     fig2 = px.bar(dff, x="Cliente", y="Valor Venda",
-                  title="Vendas por Cliente",
-                  template="plotly_dark",
-                  color_discrete_sequence=["#e377c2"])
-
-    fig2.update_layout(
-        plot_bgcolor='#111111',
-        paper_bgcolor='#111111',
-        font=dict(color='white'),
-        title_font=dict(color='white'),
-        xaxis=dict(title='Cliente', title_font=dict(color='white'), tickfont=dict(color='white')),
-        yaxis=dict(title='Valor Venda', title_font=dict(color='white'), tickfont=dict(color='white')),
-        showlegend=False
-    )
+                  title="Vendas por Cliente", template="plotly_dark",
+                  color="Cliente", color_discrete_sequence=px.colors.qualitative.Pastel1)
 
     # Gráfico 3 - Vendas por Produto
     fig3 = px.bar(dff, x="Produto", y="Valor Venda",
                   title="Vendas por Produto", template="plotly_dark",
-                  color_discrete_sequence=px.colors.qualitative.Set3)
+                  color="Produto", color_discrete_sequence=px.colors.qualitative.Bold)
 
     # Gráfico 4 - Vendas por Loja
     fig4 = px.bar(dff, x="Valor Venda", y="Nome da Loja", orientation="h",
                   title="Vendas por Loja", template="plotly_dark",
-                  color_discrete_sequence=px.colors.qualitative.Prism)
+                  color="Nome da Loja", color_discrete_sequence=px.colors.qualitative.Alphabet)
 
-    # Gráfico 5 - Pizza Tipo de Produto
+    # Gráfico 5 - Pizza por Tipo de Produto
     fig5 = px.pie(dff, names="Tipo do Produto", values="Valor Venda",
                   title="Distribuição por Tipo de Produto", template="plotly_dark",
-                  color_discrete_sequence=px.colors.sequential.Plasma)
+                  color_discrete_sequence=px.colors.sequential.Magma)
 
-    # Gráfico 6 - Área Marca por Ano
+    # Gráfico 6 - Vendas por Marca ao Longo dos Anos
     fig6 = px.area(dff, x="Ano", y="Valor Venda", color="Marca",
                    title="Vendas por Marca ao Longo dos Anos", template="plotly_dark",
-                   color_discrete_sequence=px.colors.qualitative.Safe)
+                   color_discrete_sequence=px.colors.qualitative.Vivid)
 
     return fig1, fig2, fig3, fig4, fig5, fig6
 
