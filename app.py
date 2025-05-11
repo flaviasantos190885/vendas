@@ -140,6 +140,10 @@ df['Valor Venda'] = df['Qtd Vendida'] * df['Preço Unitario']
 # colunas do df
 print(df.columns.tolist())
 
+from dash import Dash, dcc, html, Input, Output
+import dash_bootstrap_components as dbc
+import plotly.express as px
+
 app = Dash(__name__, external_stylesheets=[dbc.themes.CYBORG])
 
 app.layout = dbc.Container([
@@ -148,24 +152,17 @@ app.layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.H5("Filtros", className="text-white mb-3"),
-
             dcc.Dropdown(df["Produto"].unique(), id="filtro_produto",
                          placeholder="Filtrar por Produto", className="mb-2"),
-
             dcc.Dropdown(df["Nome da Loja"].unique(), id="filtro_loja",
                          placeholder="Filtrar por Loja", className="mb-2"),
-
             dcc.Dropdown(df["Cliente"].unique(), id="filtro_cliente",
                          placeholder="Filtrar por Cliente", className="mb-2"),
-
             dcc.Dropdown(df["Marca"].unique(), id="filtro_marca",
                          placeholder="Filtrar por Marca", className="mb-2"),
-
             dcc.Dropdown(df["Tipo do Produto"].unique(), id="filtro_tipo_produto",
                          placeholder="Filtrar por Tipo Produto", className="mb-2"),
-
             dcc.Dropdown(id="filtro_marca_dinamica", placeholder="Selecione uma Marca", className="mb-2"),
-
         ], md=3),
 
         dbc.Col([
@@ -173,12 +170,10 @@ app.layout = dbc.Container([
                 dbc.Col(dcc.Graph(id="grafico_vendas_ano"), md=6),
                 dbc.Col(dcc.Graph(id="grafico_vendas_cliente"), md=6),
             ]),
-
             dbc.Row([
                 dbc.Col(dcc.Graph(id="grafico_vendas_produto"), md=6),
                 dbc.Col(dcc.Graph(id="grafico_vendas_loja"), md=6),
             ]),
-
             dbc.Row([
                 dbc.Col(dcc.Graph(id="grafico_pizza_tipo"), md=6),
                 dbc.Col(dcc.Graph(id="grafico_area_marca"), md=6),
@@ -225,35 +220,29 @@ def atualizar_graficos(produto, loja, cliente, marca, tipo, marca_dinamica):
     if marca_dinamica:
         dff = dff[dff["Marca"] == marca_dinamica]
 
-    # Gráfico 1 - Vendas por Ano
     fig1 = px.bar(dff, x="Ano", y="Valor Venda",
                   title="Vendas por Ano", template="plotly_dark",
-                  color="Ano", color_discrete_sequence=px.colors.qualitative.Set1)
+                  color_discrete_sequence=["#00ccff"])
 
-    # Gráfico 2 - Vendas por Cliente
     fig2 = px.bar(dff, x="Cliente", y="Valor Venda",
                   title="Vendas por Cliente", template="plotly_dark",
-                  color="Cliente", color_discrete_sequence=px.colors.qualitative.Pastel1)
+                  color_discrete_sequence=["#1f77b4"])
 
-    # Gráfico 3 - Vendas por Produto
     fig3 = px.bar(dff, x="Produto", y="Valor Venda",
                   title="Vendas por Produto", template="plotly_dark",
-                  color="Produto", color_discrete_sequence=px.colors.qualitative.Bold)
+                  color_discrete_sequence=["#ff7f0e"])
 
-    # Gráfico 4 - Vendas por Loja
     fig4 = px.bar(dff, x="Valor Venda", y="Nome da Loja", orientation="h",
                   title="Vendas por Loja", template="plotly_dark",
-                  color="Nome da Loja", color_discrete_sequence=px.colors.qualitative.Alphabet)
+                  color_discrete_sequence=["#2ca02c"])
 
-    # Gráfico 5 - Pizza por Tipo de Produto
     fig5 = px.pie(dff, names="Tipo do Produto", values="Valor Venda",
                   title="Distribuição por Tipo de Produto", template="plotly_dark",
-                  color_discrete_sequence=px.colors.sequential.Magma)
+                  color_discrete_sequence=px.colors.sequential.RdBu)
 
-    # Gráfico 6 - Vendas por Marca ao Longo dos Anos
     fig6 = px.area(dff, x="Ano", y="Valor Venda", color="Marca",
                    title="Vendas por Marca ao Longo dos Anos", template="plotly_dark",
-                   color_discrete_sequence=px.colors.qualitative.Vivid)
+                   color_discrete_sequence=px.colors.qualitative.Set2)
 
     return fig1, fig2, fig3, fig4, fig5, fig6
 
