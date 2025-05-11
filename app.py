@@ -140,10 +140,6 @@ df['Valor Venda'] = df['Qtd Vendida'] * df['Preço Unitario']
 # colunas do df
 print(df.columns.tolist())
 
-from dash import Dash, dcc, html, Input, Output
-import dash_bootstrap_components as dbc
-import plotly.express as px
-
 app = Dash(__name__, external_stylesheets=[dbc.themes.CYBORG])
 
 app.layout = dbc.Container([
@@ -220,29 +216,20 @@ def atualizar_graficos(produto, loja, cliente, marca, tipo, marca_dinamica):
     if marca_dinamica:
         dff = dff[dff["Marca"] == marca_dinamica]
 
-    fig1 = px.bar(dff, x="Ano", y="Valor Venda",
-                  title="Vendas por Ano", template="plotly_dark",
-                  color_discrete_sequence=["#00ccff"])
+    fig1 = px.bar(dff, x="Ano", y="Valor Venda", title="Vendas por Ano", template="plotly_dark")
 
-    fig2 = px.bar(dff, x="Cliente", y="Valor Venda",
-                  title="Vendas por Cliente", template="plotly_dark",
-                  color_discrete_sequence=["#1f77b4"])
+    fig2 = px.bar(dff, x="Cliente", y="Valor Venda", title="Vendas por Cliente", template="plotly_dark")
 
-    fig3 = px.bar(dff, x="Produto", y="Valor Venda",
-                  title="Vendas por Produto", template="plotly_dark",
-                  color_discrete_sequence=["#ff7f0e"])
+    fig3 = px.bar(dff, x="Produto", y="Valor Venda", title="Vendas por Produto", template="plotly_dark")
 
     fig4 = px.bar(dff, x="Valor Venda", y="Nome da Loja", orientation="h",
-                  title="Vendas por Loja", template="plotly_dark",
-                  color_discrete_sequence=["#2ca02c"])
+                  title="Vendas por Loja", template="plotly_dark")
 
     fig5 = px.pie(dff, names="Tipo do Produto", values="Valor Venda",
-                  title="Distribuição por Tipo de Produto", template="plotly_dark",
-                  color_discrete_sequence=px.colors.sequential.RdBu)
+                  title="Distribuição por Tipo de Produto", template="plotly_dark")
 
     fig6 = px.area(dff, x="Ano", y="Valor Venda", color="Marca",
-                   title="Vendas por Marca ao Longo dos Anos", template="plotly_dark",
-                   color_discrete_sequence=px.colors.qualitative.Set2)
+                   title="Vendas por Marca ao Longo dos Anos", template="plotly_dark")
 
     return fig1, fig2, fig3, fig4, fig5, fig6
 
