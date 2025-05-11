@@ -216,20 +216,20 @@ def atualizar_graficos(produto, loja, cliente, marca, tipo, marca_dinamica):
     if marca_dinamica:
         dff = dff[dff["Marca"] == marca_dinamica]
 
-    fig1 = px.bar(dff, x="Ano", y="Valor Venda", title="Vendas por Ano", template="plotly_dark")
+    fig1 = px.bar(dff, x="Ano", y="Valor Venda", title="Vendas por Ano", template="plotly")
 
-    fig2 = px.bar(dff, x="Cliente", y="Valor Venda", title="Vendas por Cliente", template="plotly_dark")
+    fig2 = px.bar(dff, x="Cliente", y="Valor Venda", title="Vendas por Cliente", template="plotly")
 
-    fig3 = px.bar(dff, x="Produto", y="Valor Venda", title="Vendas por Produto", template="plotly_dark")
+    fig3 = px.bar(dff, x="Produto", y="Valor Venda", title="Vendas por Produto", template="plotly")
 
     fig4 = px.bar(dff, x="Valor Venda", y="Nome da Loja", orientation="h",
-                  title="Vendas por Loja", template="plotly_dark")
+                  title="Vendas por Loja", template="plotly")
 
     fig5 = px.pie(dff, names="Tipo do Produto", values="Valor Venda",
-                  title="Distribuição por Tipo de Produto", template="plotly_dark")
+                  title="Distribuição por Tipo de Produto", template="plotly")
 
     fig6 = px.area(dff, x="Ano", y="Valor Venda", color="Marca",
-                   title="Vendas por Marca ao Longo dos Anos", template="plotly_dark")
+                   title="Vendas por Marca ao Longo dos Anos", template="plotly")
 
     return fig1, fig2, fig3, fig4, fig5, fig6
 
