@@ -136,12 +136,11 @@ df['Ano'] = df['Data da Venda'].dt.year
 df['Valor Venda'] = df['Qtd Vendida'] * df['Preço Unitario']
 
 """#Dashboard"""
-
-
 # colunas do df
 print(df.columns.tolist())
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])  # Tema claro padrão
+app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
+app.title = "Dashboard de Vendas"
 
 app.layout = dbc.Container([
     html.H1("Dashboard de Vendas", className="text-center my-4"),
@@ -149,17 +148,30 @@ app.layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.H5("Filtros", className="mb-3"),
-            dcc.Dropdown(df["Produto"].unique(), id="filtro_produto",
-                         placeholder="Filtrar por Produto", className="mb-2"),
-            dcc.Dropdown(df["Nome da Loja"].unique(), id="filtro_loja",
-                         placeholder="Filtrar por Loja", className="mb-2"),
-            dcc.Dropdown(df["Cliente"].unique(), id="filtro_cliente",
-                         placeholder="Filtrar por Cliente", className="mb-2"),
-            dcc.Dropdown(df["Marca"].unique(), id="filtro_marca",
-                         placeholder="Filtrar por Marca", className="mb-2"),
-            dcc.Dropdown(df["Tipo do Produto"].unique(), id="filtro_tipo_produto",
-                         placeholder="Filtrar por Tipo Produto", className="mb-2"),
-            dcc.Dropdown(id="filtro_marca_dinamica", placeholder="Selecione uma Marca", className="mb-2"),
+        dcc.Dropdown(df["Produto"].unique(), id="filtro_produto",
+             placeholder="Filtrar por Produto", className="mb-2",
+             style={"backgroundColor": "#1e1e1e", "color": "white", "border": "1px solid #444"}),
+
+        dcc.Dropdown(df["Nome da Loja"].unique(), id="filtro_loja",
+             placeholder="Filtrar por Loja", className="mb-2",
+             style={"backgroundColor": "#1e1e1e", "color": "white", "border": "1px solid #444"}),
+
+        dcc.Dropdown(df["Cliente"].unique(), id="filtro_cliente",
+             placeholder="Filtrar por Cliente", className="mb-2",
+             style={"backgroundColor": "#1e1e1e", "color": "white", "border": "1px solid #444"}),
+
+        dcc.Dropdown(df["Marca"].unique(), id="filtro_marca",
+             placeholder="Filtrar por Marca", className="mb-2",
+             style={"backgroundColor": "#1e1e1e", "color": "white", "border": "1px solid #444"}),
+
+        dcc.Dropdown(df["Tipo do Produto"].unique(), id="filtro_tipo_produto",
+             placeholder="Filtrar por Tipo Produto", className="mb-2",
+             style={"backgroundColor": "#1e1e1e", "color": "white", "border": "1px solid #444"}),
+
+        dcc.Dropdown(id="filtro_marca_dinamica",
+             placeholder="Selecione uma Marca", className="mb-2",
+             style={"backgroundColor": "#1e1e1e", "color": "white", "border": "1px solid #444"}),
+
         ], md=3),
 
         dbc.Col([
@@ -177,7 +189,7 @@ app.layout = dbc.Container([
             ]),
         ], md=9)
     ])
-], fluid=True)
+], fluid=True, style={"backgroundColor": "#000000", "minHeight": "100vh", "padding": "20px"})
 
 @app.callback(
     Output("filtro_marca_dinamica", "options"),
@@ -222,8 +234,15 @@ def atualizar_graficos(produto, loja, cliente, marca, tipo, marca_dinamica):
     palette = px.colors.qualitative.Bold
 
     # Vendas por Ano
-    fig1 = px.bar(dff, x="Ano", y="Valor Venda", title="Vendas por Ano",
-                  color="Ano", color_discrete_sequence=palette)
+    dff_ano = dff.groupby("Ano", as_index=False)["Valor Venda"].sum()
+    fig1 = px.bar(dff_ano, x="Ano", y="Valor Venda", title="Vendas por Ano",
+              color="Ano", color_discrete_sequence=palette)
+    fig1.update_layout(
+    plot_bgcolor='#1e1e1e',
+    paper_bgcolor='#1e1e1e',
+    font=dict(color='white'),
+)
+
 
     # Vendas por Cliente (limitar aos 10 com maior venda se nenhum filtro aplicado)
     dff_cliente = dff.copy()
@@ -232,6 +251,11 @@ def atualizar_graficos(produto, loja, cliente, marca, tipo, marca_dinamica):
         dff_cliente = dff_cliente.nlargest(10, "Valor Venda")
     fig2 = px.bar(dff_cliente, x="Cliente", y="Valor Venda", title="Vendas por Cliente",
                   color="Cliente", color_discrete_sequence=palette)
+    fig2.update_layout(
+    plot_bgcolor='#1e1e1e',
+    paper_bgcolor='#1e1e1e',
+    font=dict(color='white'),
+)
 
     # Vendas por Produto (limitar top 10)
     dff_produto = dff.copy()
@@ -240,6 +264,11 @@ def atualizar_graficos(produto, loja, cliente, marca, tipo, marca_dinamica):
         dff_produto = dff_produto.nlargest(10, "Valor Venda")
     fig3 = px.bar(dff_produto, x="Produto", y="Valor Venda", title="Vendas por Produto",
                   color="Produto", color_discrete_sequence=palette)
+    fig3.update_layout(
+    plot_bgcolor='#1e1e1e',
+    paper_bgcolor='#1e1e1e',
+    font=dict(color='white'),
+)
 
     # Vendas por Loja (limitar top 10)
     dff_loja = dff.copy()
@@ -248,14 +277,31 @@ def atualizar_graficos(produto, loja, cliente, marca, tipo, marca_dinamica):
         dff_loja = dff_loja.nlargest(10, "Valor Venda")
     fig4 = px.bar(dff_loja, x="Valor Venda", y="Nome da Loja", orientation="h",
                   title="Vendas por Loja", color="Nome da Loja", color_discrete_sequence=palette)
+    fig4.update_layout(
+    plot_bgcolor='#1e1e1e',
+    paper_bgcolor='#1e1e1e',
+    font=dict(color='white'),
+)
 
     # Pizza por Tipo de Produto (sempre mostra tudo)
     fig5 = px.pie(dff, names="Tipo do Produto", values="Valor Venda",
                   title="Distribuição por Tipo de Produto", color_discrete_sequence=palette)
+    fig5.update_layout(
+    plot_bgcolor='#1e1e1e',
+    paper_bgcolor='#1e1e1e',
+    font=dict(color='white'),
+)
 
     # Área por Marca e Ano
     fig6 = px.area(dff, x="Ano", y="Valor Venda", color="Marca",
                    title="Vendas por Marca ao Longo dos Anos", color_discrete_sequence=palette)
+    fig6.update_layout(
+    plot_bgcolor='#1e1e1e',
+    paper_bgcolor='#1e1e1e',
+    font=dict(color='white'),
+)
 
     return fig1, fig2, fig3, fig4, fig5, fig6
+    
+server = app.server  
 
