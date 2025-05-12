@@ -143,37 +143,71 @@ app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
 app.title = "Dashboard de Vendas"
 
 app.layout = dbc.Container([
-    html.H1("Dashboard de Vendas", className="text-center my-4"),
+    html.H1("Dashboard de Vendas", className="text-center my-4", style={"color": "white"}),
 
     dbc.Row([
-        dbc.Col([
-            html.H5("Filtros", className="mb-3"),
-        dcc.Dropdown(df["Produto"].unique(), id="filtro_produto",
-             placeholder="Filtrar por Produto", className="mb-2",
-             style={"backgroundColor": "#1e1e1e", "color": "white", "border": "1px solid #444"}),
+        dbc.Col(
+            dcc.Dropdown(
+                options=df["Produto"].unique(), # Usando sua forma original
+                id="filtro_produto",
+                placeholder="Filtrar por Produto",
+                className="mb-2",
+                style={"backgroundColor": "#1e1e1e", "color": "white", "border": "1px solid #444"} 
+            ),
+            md=2 
+        ),
+        dbc.Col(
+            dcc.Dropdown(
+                options=df["Nome da Loja"].unique(),
+                id="filtro_loja",
+                placeholder="Filtrar por Loja",
+                className="mb-2",
+                style={"backgroundColor": "#1e1e1e", "color": "white", "border": "1px solid #444"} 
+            ),
+            md=2
+        ),
+        dbc.Col(
+            dcc.Dropdown(
+                options=df["Cliente"].unique(),
+                id="filtro_cliente",
+                placeholder="Filtrar por Cliente",
+                className="mb-2",
+                style={"backgroundColor": "#1e1e1e", "color": "white", "border": "1px solid #444"} 
+            ),
+            md=2
+        ),
+        dbc.Col(
+             dcc.Dropdown(
+                 options=df["Marca"].unique(),
+                 id="filtro_marca",
+                 placeholder="Filtrar por Marca",
+                 className="mb-2",
+                 style={"backgroundColor": "#1e1e1e", "color": "white", "border": "1px solid #444"} 
+             ),
+             md=2
+        ),
+        dbc.Col(
+            dcc.Dropdown(
+                options=df["Tipo do Produto"].unique(),
+                id="filtro_tipo_produto",
+                placeholder="Filtrar por Tipo Produto",
+                className="mb-2",
+                style={"backgroundColor": "#1e1e1e", "color": "white", "border": "1px solid #444"} 
+            ),
+            md=2
+        ),
+        dbc.Col(
+            dcc.Dropdown(
+                id="filtro_marca_dinamica",
+                placeholder="Selecione uma Marca", 
+                className="mb-2",
+                style={"backgroundColor": "#1e1e1e", "color": "white", "border": "1px solid #444"} 
+            ),
+            md=2
+        ),
+    ], className="mb-4"), 
 
-        dcc.Dropdown(df["Nome da Loja"].unique(), id="filtro_loja",
-             placeholder="Filtrar por Loja", className="mb-2",
-             style={"backgroundColor": "#1e1e1e", "color": "white", "border": "1px solid #444"}),
-
-        dcc.Dropdown(df["Cliente"].unique(), id="filtro_cliente",
-             placeholder="Filtrar por Cliente", className="mb-2",
-             style={"backgroundColor": "#1e1e1e", "color": "white", "border": "1px solid #444"}),
-
-        dcc.Dropdown(df["Marca"].unique(), id="filtro_marca",
-             placeholder="Filtrar por Marca", className="mb-2",
-             style={"backgroundColor": "#1e1e1e", "color": "white", "border": "1px solid #444"}),
-
-        dcc.Dropdown(df["Tipo do Produto"].unique(), id="filtro_tipo_produto",
-             placeholder="Filtrar por Tipo Produto", className="mb-2",
-             style={"backgroundColor": "#1e1e1e", "color": "white", "border": "1px solid #444"}),
-
-        dcc.Dropdown(id="filtro_marca_dinamica",
-             placeholder="Selecione uma Marca", className="mb-2",
-             style={"backgroundColor": "#1e1e1e", "color": "white", "border": "1px solid #444"}),
-
-        ], md=3),
-
+    dbc.Row([
         dbc.Col([
             dbc.Row([
                 dbc.Col(dcc.Graph(id="grafico_vendas_ano"), md=6),
@@ -187,9 +221,10 @@ app.layout = dbc.Container([
                 dbc.Col(dcc.Graph(id="grafico_pizza_tipo"), md=6),
                 dbc.Col(dcc.Graph(id="grafico_area_marca"), md=6),
             ]),
-        ], md=9)
-    ])
-], fluid=True, style={"backgroundColor": "#000000", "minHeight": "100vh", "padding": "20px"})
+        ], md=12) 
+    ]) 
+
+], fluid=True, style={"backgroundColor": "#000000", "minHeight": "100vh", "padding": "20px"}) 
 
 @app.callback(
     Output("filtro_marca_dinamica", "options"),
